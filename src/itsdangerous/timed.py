@@ -85,6 +85,9 @@ class TimestampSigner(Signer):
             The timestamp is returned as a timezone-aware ``datetime``
             in UTC rather than a naive ``datetime`` assumed to be UTC.
         """
+        if max_age is not None and max_age < 0:
+            raise ValueError("max_age must be non-negative")
+
         try:
             result = super().unsign(signed_value)
             sig_error = None

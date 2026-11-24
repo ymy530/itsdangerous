@@ -42,6 +42,19 @@ class TestTimestampSigner(FreezeMixin, TestSigner):
 
         assert exc_info.value.date_signed == ts
 
+    @pytest.mark.parametrize("max_age", [-1, -10])
+    def test_negative_max_age(self, signer, max_age):
+        signed = signer.sign("value")
+
+        with pytest.raises(ValueError, match="^max_age must be non-negative$"):
+            signer.unsign(signed, max_age=max_age)
+
+    @pytest.mark.parametrize("max_age", [None, 0])
+    def test_none_and_zero_max_age(self, signer, max_age):
+        signed = signer.sign("value")
+
+        assert signer.unsign(signed, max_age=max_age) == b"value"
+
     def test_return_timestamp(self, signer, ts):
         signed = signer.sign("value")
         assert signer.unsign(signed, return_timestamp=True) == (b"value", ts)
@@ -109,6 +122,12 @@ class TestTimedSerializer(FreezeMixin, TestSerializer):
 
         assert exc_info.value.date_signed == ts
         assert serializer.load_payload(exc_info.value.payload) == value
+
+    def test_negative_max_age(self, serializer, value):
+        signed = serializer.dumps(value)
+
+        with pytest.raises(ValueError, match="^max_age must be non-negative$"):
+            serializer.loads(signed, max_age=-1)
 
     def test_return_payload(self, serializer, value, ts):
         signed = serializer.dumps(value)
