@@ -31,6 +31,10 @@ print(data["name"])
 # itsdangerous
 ```
 
+For time-limited tokens, `URLSafeTimedSerializer.loads()` accepts `max_age` in
+seconds. For example, `serializer.loads(token, max_age=300)` gives a token a
+five-minute validity window.
+
 
 ## Donate
 
